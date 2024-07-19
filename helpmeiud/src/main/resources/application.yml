@@ -1,0 +1,18 @@
+# Ojo pendiente de analizar los cambios del profe para que funcione
+server:
+  port: 8084
+  servlet:
+    context-path: /api/v1
+spring:
+  application:
+    name: helpmeiud
+
+  # conexión a base de datos
+  datasource:
+    url: jdbc:mysql://localhost:3306/helpme_iud
+    username: root
+    password:
+  # generar tablas con codigo java
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

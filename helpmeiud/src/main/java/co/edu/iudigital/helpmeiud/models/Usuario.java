@@ -1,6 +1,5 @@
 package co.edu.iudigital.helpmeiud.models;
 
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,7 +47,7 @@ public class Usuario implements Serializable {
     @Column
     String image;
 
-    @ManyToMany(fetch = FetchType.EAGER) //EAGER
+    @ManyToMany(fetch = FetchType.LAZY) //EAGER
     @JoinTable(
             name = "roles_usuarios",
             joinColumns = {@JoinColumn(name = "usuarios_id")},

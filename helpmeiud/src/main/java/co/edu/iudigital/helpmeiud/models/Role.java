@@ -19,7 +19,7 @@ public class Role implements Serializable {
 
     static final long serialVersionUID = 1L;
 
-    public Role() {
+    public Role(){
     }
 
     public Role(Long id) {
@@ -36,4 +36,9 @@ public class Role implements Serializable {
     @Column
     String descripcion;
 
+    // bidireccional
+    // Opcional
+   /* @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
+    List<Usuario> usuarios;*/
 }

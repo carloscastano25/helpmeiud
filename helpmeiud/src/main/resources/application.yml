@@ -15,4 +15,4 @@ spring:
   # generar tablas con codigo java
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update

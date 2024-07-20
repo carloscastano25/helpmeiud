@@ -1,3 +1,4 @@
+USE helpme_iud;
 
 -- ROLES
 INSERT INTO roles (id, nombre, descripcion)

@@ -1,9 +1,10 @@
 package co.edu.iudigital.helpmeiud.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -14,17 +15,19 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 /**
  * Registrar la clase de UsuarioService
  *
  *
  */
 @Configuration
-@EnableGlobalMethodSecurity(securedEnabled = true)//para usar el @Secured
+//@EnableGlobalMethodSecurity(securedEnabled = true)//para usar el @Secured
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true) // PARA pRE Y Post Authorize
 @EnableWebSecurity
+@EnableAutoConfiguration(
+        exclude = SecurityAutoConfiguration.class
+)
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
-
     @Autowired
     private UserDetailsService usuarioService;
 
@@ -82,15 +85,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .antMatchers(HttpMethod.GET, "/**")
+                // .antMatchers( HttpMethod.GET, "/**")
                 .antMatchers("/app/**/*.{js,html}")
                 .antMatchers("/i18n/**")
                 .antMatchers("/content/**")
                 .antMatchers("/h2-console/**")
+                .antMatchers("/swagger-ui/**")
                 .antMatchers("/swagger-ui/index.html")
                 .antMatchers("/swagger-ui.html")
-                .antMatchers("/v2/api-docs")
+                .antMatchers("/v3/api-docs")
+                .antMatchers("/v3/api-docs/**")
                 .antMatchers("/test/**");
     }
-
 }

@@ -8,19 +8,23 @@ import co.edu.iudigital.helpmeiud.services.ifaces.ICasoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name = "Casos Controller", description = "Controlador para gestión de casos")
 @RestController
 @RequestMapping("/casos")
 @Slf4j
 public class CasoController {
-
     @Autowired
     private ICasoService casoService;
     @ApiResponses(
@@ -37,7 +41,7 @@ public class CasoController {
     public ResponseEntity<List<CasoResponseDTO>> index() throws RestException {
         log.info("Ejecutando index de CasoController");
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .ok()
                 .body(casoService.consultarCasos());
     }
 
@@ -55,10 +59,12 @@ public class CasoController {
     public ResponseEntity<List<CasoResponseDTO>> indexVisible() throws RestException {
         log.info("Ejecutando indexVisible de CasoController");
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .ok()
                 .body(casoService.consultarCasosVisibles());
     }
 
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
+    @SecurityRequirement(name = "Authorization")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "400", description = "Bad Request"),
@@ -74,14 +80,17 @@ public class CasoController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public ResponseEntity<CasoResponseDTO> create(
-            @RequestBody CasoRequestDTO caso
-    ) throws RestException {
+            @RequestBody CasoRequestDTO caso, Authentication authentication
+    ) throws RestException { // TODO: IMPLEMENTAR Authorization para registrar caso con la persona que esté autenticada
         log.info("Ejecutando create de CasoController");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(casoService.guardarCaso(caso));
+                .body(casoService.guardarCaso(caso, authentication));
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Authorization")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "400", description = "Bad Request"),

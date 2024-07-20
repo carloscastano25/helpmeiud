@@ -17,6 +17,8 @@ import co.edu.iudigital.helpmeiud.utils.CasoMapper;
 import co.edu.iudigital.helpmeiud.utils.Messages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -58,7 +60,23 @@ public class CasoServiceImpl implements ICasoService {
     }
     @Override
     public List<CasoResponseDTO> consultarCasosVisibles() throws RestException {
-        return null;
+        log.info("consultarCasosVisibles CasoServiceImpl");
+        try{
+            final List<Caso> casos = casoRepository.findAllByVisibleTrue();
+            final List<CasoResponseDTO> casoResponseDTOList =
+                    casoMapper.toCasoResponseDTOList(casos);
+            return casoResponseDTOList;
+        }catch (Exception e) {
+            log.error("Error Consultando casos: {}",e.getMessage());
+            throw new InternalServerErrorException(
+                    ErrorDto.builder()
+                            .error("Error General")
+                            .status(500)
+                            .message(e.getMessage())
+                            .date(LocalDateTime.now())
+                            .build()
+            );
+        }
     }
     @Override
     public List<CasoResponseDTO> consultarCasosPorUsuario(String username) throws RestException {
@@ -70,8 +88,9 @@ public class CasoServiceImpl implements ICasoService {
     }
 
     @Override
-    public CasoResponseDTO guardarCaso(final CasoRequestDTO caso) throws RestException {
+    public CasoResponseDTO guardarCaso(final CasoRequestDTO caso, Authentication authentication) throws RestException {
         log.info("consultarCasos CasoServiceImpl");
+        String username = authentication.getName();
         final Delito delitoBD = delitoRepository.findById(caso.getDelitoId())
                 .orElseThrow(() ->
                         new NotFoundException(
@@ -82,7 +101,17 @@ public class CasoServiceImpl implements ICasoService {
                                         .date(LocalDateTime.now())
                                         .build())
                 );
-        final Usuario usuarioDB = usuarioRepository.findById(caso.getUsuarioId())
+        Usuario usuarioDB = usuarioRepository.findByUsername(username);
+        if(usuarioDB == null ) {
+            throw new NotFoundException(
+                    ErrorDto.builder()
+                            .error("Usuario No encontrado")
+                            .message("Usuario No existe")
+                            .status(404)
+                            .date(LocalDateTime.now())
+                            .build());
+        }
+        /*final Usuario usuarioDB = usuarioRepository.findById(caso.getUsuarioId())
                 .orElseThrow(() -> {
                     log.warn("Error al consultar Usuario");
                         return new NotFoundException(
@@ -92,7 +121,7 @@ public class CasoServiceImpl implements ICasoService {
                                         .status(404)
                                         .date(LocalDateTime.now())
                                         .build());
-                });
+                });*/
         try{
             // TODO: LLEVAR A MAPPER
             Caso casoEntity = new Caso();
@@ -108,7 +137,7 @@ public class CasoServiceImpl implements ICasoService {
             casoEntity.setDelito(delitoBD);
             casoEntity = casoRepository.save(casoEntity);
             return casoMapper.toCasoResponseDTO(casoEntity);
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error Consultando casos: {}",e.getMessage());
             throw new InternalServerErrorException(
                     ErrorDto.builder()
@@ -120,9 +149,36 @@ public class CasoServiceImpl implements ICasoService {
             );
         }
     }
-
     @Override
-    public Boolean visibilizar(Boolean visible, Long id) throws RestException {
-        return null;
+    public Boolean visibilizar(final Boolean visible, final Long id) throws RestException {
+        log.info("visibilizar CasoServiceImpl");
+        Caso casoBD = casoRepository.findById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                ErrorDto.builder()
+                                        .error(Messages.NO_ENCONTRADO)
+                                        .message("Caso No existe")
+                                        .status(HttpStatus.NOT_FOUND.value())
+                                        .date(LocalDateTime.now())
+                                        .build())
+                );
+        try{
+            casoBD.setVisible(visible);
+            casoBD = casoRepository.saveAndFlush(casoBD);
+            if(casoBD != null) {
+                return true;
+            }
+            return false;
+        }catch (Exception e) {
+            log.error("Error Actualizado caso: {}",e.getMessage());
+            throw new InternalServerErrorException(
+                    ErrorDto.builder()
+                            .error("Error General")// TODO: CONSTANTE
+                            .status(500)
+                            .message("Error al intentar actualizar")// TODO: CONSTANTE
+                            .date(LocalDateTime.now())
+                            .build()
+            );
+        }
     }
 }

@@ -23,7 +23,7 @@ public class Usuario implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
-    @Column(unique = true, length = 120)
+    @Column(unique = true, length = 120, updatable = false)
     String username;
 
     @Column(length = 120, nullable = false)
@@ -47,7 +47,7 @@ public class Usuario implements Serializable {
     @Column
     String image;
 
-    @ManyToMany(fetch = FetchType.LAZY) //EAGER
+    @ManyToMany(fetch = FetchType.EAGER) //EAGER
     @JoinTable(
             name = "roles_usuarios",
             joinColumns = {@JoinColumn(name = "usuarios_id")},

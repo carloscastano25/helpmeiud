@@ -12,11 +12,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-
 import java.util.Arrays;
-
-
-
 /**
  * Config Servidor de recursos
  * accesos de clientes a los recursos de nuestra app
@@ -28,7 +24,6 @@ import java.util.Arrays;
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
-
     // protección del lado de oath2
     @Override
     public void configure(HttpSecurity http) throws Exception {
@@ -37,14 +32,14 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 //se parte desde rutas más específicas a mas generales o genéricas
                 // urls abiertas sin autenticación ni autorización
                 // pero lo haremos más sencillo con anotaciones @Secured
-                .antMatchers(HttpMethod.GET, "/delitos").permitAll()
+                //.antMatchers(HttpMethod.GET, "/delitos").permitAll()
 
                 .antMatchers(HttpMethod.POST, "/usuarios/signup**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/usuarios/signup**").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/casos", "/casos/caso/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/casos", "/casos/visibles/**").permitAll()
                 // nivel 2: AUTORIZACIONES ESPECÍFICAS (SOBREESCRIBE LA GENÉRICA CORRESPONDIENTE)
-                .antMatchers(HttpMethod.GET, "/usuarios/uploads/img/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/usuarios/upload/img/**").permitAll()
                 //.antMatchers(HttpMethod.POST, "/usuarios/upload").hasAnyRole("USER", "ADMIN")
                 //.antMatchers(HttpMethod.DELETE, "/delitos/delito/{id}").hasRole("ADMIN")
                 // nivel 1: genéricas
@@ -87,10 +82,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000"));
+        //config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000"));
         config.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowCredentials(true);//permitir credenciales
-        //config.setAllowedOriginPatterns(Arrays.asList("*"));
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
         config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));//"Content-Type", "Authorization"
         //config.addExposedHeader("Authorization");
 

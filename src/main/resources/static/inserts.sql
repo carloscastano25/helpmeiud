@@ -1,3 +1,4 @@
+
 -- ROLES
 INSERT INTO roles (id, nombre, descripcion)
 VALUES (1, 'ROLE_ADMIN', 'Usuario administrador');
